@@ -2,7 +2,6 @@
 #define TESTS_BMP_VALIDATE_H
 
 #include <stdbool.h>
-#include <strings.h>
 #include <stdio.h>
 #include <stdlib.h>
 

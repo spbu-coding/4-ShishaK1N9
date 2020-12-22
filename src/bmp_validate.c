@@ -1,4 +1,7 @@
+#include <strings.h>
+
 #include "bmp_validate.h"
+#include "bmp_handler.h"
 
 #define error_print(...) fprintf(stderr, __VA_ARGS__)
 
@@ -83,6 +86,8 @@ int check_converter_parameters(parameters_count_t parameters_count, parameters_t
         return error("Input file doesn't exist.", UNSUCCESSFUL_EXIT_CODE);
     }
 }
+
+
 //todo проверить первые два байта на сигнартуру BM
 //todo отловить ошибку размера файла(02-05 / 1 строчка)
 //todo отловить ошибку зарезервированных бит(должны быть пустыми, 06-09 / 1 строчка)
