@@ -1,24 +1,17 @@
 #ifndef TESTS_BMP_HANDLER_H
 #define TESTS_BMP_HANDLER_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <strings.h>
 
-#define size_of_array(array) sizeof(array) / sizeof(char*)
 #define read_bmp_fragment(fragment, fragment_size, file) fread(fragment, fragment_size, 1, file)
 #define write_bmp_fragment(fragment, fragment_size, file) fwrite(fragment, fragment_size, 1, file)
 
-static const char *BMP_FILE_FORMAT = ".bmp", *UTILITY_NAMES[] = {"converter", "comparer"};
-static const char *ALGORITHMS_NAMES[] = {"--mine", "--theirs"};
-static const int BMP_HEADER_SIZE = 14, BMP_INFO_HEADER_SIZE = 40, BMP_8_PALETTE_SIZE = 256, BMP_8_BIT_COUNT = 8;
-static const int BMP_24_BIT_COUNT = 24;
-static const int COUNT_OF_UTILITIES = size_of_array(UTILITY_NAMES), COUNT_OF_ALGORITHMS = size_of_array(ALGORITHMS_NAMES);
+static const int BMP_HEADER_SIZE = 14, BMP_INFO_HEADER_SIZE = 40, BMP_8_PALETTE_SIZE = 256;
+static const int BMP_24_BIT_COUNT = 24, BMP_8_BIT_COUNT = 8;
 
-typedef char **parameters_t, *file_name_t;
 typedef unsigned char byte_t;
 typedef unsigned short short_word_t;
 typedef unsigned int word_t;
-typedef int parameters_count_t;
 
 typedef struct
 {
@@ -46,7 +39,7 @@ typedef struct
 
 typedef struct
 {
-    file_name_t file_name;
+    char* file_name;
     bmp_header_t *header;
     bmp_info_header_t *info_header;
     word_t *palette;
@@ -58,7 +51,5 @@ typedef struct
     word_t green;
     word_t blue;
 } rgb_t;
-
-int check_parameters(parameters_count_t, parameters_t);
 
 #endif //TESTS_BMP_HANDLER_H

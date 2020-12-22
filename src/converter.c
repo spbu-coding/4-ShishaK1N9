@@ -1,13 +1,19 @@
 #include "bmp_handler.h"
 #include "bmp_inverter.h"
+#include "bmp_validate.h"
 
 int main(int argc, char* argv[])
 {
     bmp_file_t input_file;
-    input_file.file_name = argv[1];
-    //todo вставить валидацию
+    input_file.file_name = argv[ARG_CONVERTER_INPUT_FILE_NAME];
+    int exit_code = check_converter_parameters(argc - 1, argv);
+    if(exit_code != SUCCESSFUL_EXIT_CODE)
+    {
+        return exit_code;
+    }
+
     FILE* input_bmp = fopen(input_file.file_name, "rb");
-    FILE* output_bmp = fopen(argv[2], "wb");
+    FILE* output_bmp = fopen(argv[ARG_CONVERTER_OUTPUT_FILE_NAME], "wb");
 
     input_file.header = malloc(BMP_HEADER_SIZE);
     input_file.info_header = malloc(BMP_INFO_HEADER_SIZE);
@@ -32,10 +38,10 @@ int main(int argc, char* argv[])
     {
         invert_bmp_24(input_bmp, output_bmp);
     }
-    //printf("%d", input_file.info_header->bit_count);
+
     free(input_file.header);
     free(input_file.info_header);
     fclose(input_bmp);
     fclose(output_bmp);
-    return 0;
+    return exit_code;
 }

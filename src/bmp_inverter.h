@@ -1,6 +1,9 @@
 #ifndef TESTS_BMP_INVERTER_H
 #define TESTS_BMP_INVERTER_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #define invert(word) word = ~word
 
 void invert_bmp_8(bmp_file_t*);
