@@ -129,7 +129,16 @@ int main(int argc, char* argv[])
         free(first_bmp.palette);
         free(second_bmp.palette);
     }
-
+    if(first_bmp.info_header->bit_count == BMP_8_BIT_COUNT)
+    {
+        exit_code = compare_bmp_8_pixels(first_file, second_file,
+                                         first_bmp.info_header->image_size, first_bmp.info_header->image_width);
+    }
+    else
+    {
+        exit_code = compare_bmp_24_pixels(first_file, second_file,
+                                         first_bmp.info_header->image_size, first_bmp.info_header->image_width);
+    }
     free(first_bmp.header);
     free(first_bmp.info_header);
     free(second_bmp.header);
