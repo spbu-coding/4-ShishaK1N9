@@ -25,10 +25,10 @@ int error(const char*, int);
 
 int check_converter_parameters(parameters_count_t t, parameters_t);
 
-int check_bmp_header(bmp_header_t*);
+int check_bmp_header(bmp_header_t*, int);
 
-int check_colors_count(int, int);
+int check_colors_count(int, int, int);
 
-int check_bmp_info_header(bmp_info_header_t*, word_t, word_t);
+int check_bmp_info_header(bmp_info_header_t*, word_t, word_t, int);
 
 #endif //TESTS_BMP_VALIDATE_H

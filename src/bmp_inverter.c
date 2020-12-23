@@ -72,7 +72,7 @@ int mine_invert_bmp(FILE* input_file, FILE* output_file, bmp_file_t* bmp_file)
         free(bmp_file->info_header);
         return error("BMP header reading error.\n", BMP_MINE_ERROR_CODE);
     }
-    int exit_code = check_bmp_header(bmp_file->header);
+    int exit_code = check_bmp_header(bmp_file->header, BMP_MINE_ERROR_CODE);
     if(exit_code == BMP_MINE_ERROR_CODE)
     {
         free(bmp_file->header);
@@ -87,7 +87,8 @@ int mine_invert_bmp(FILE* input_file, FILE* output_file, bmp_file_t* bmp_file)
         free(bmp_file->info_header);
         return error("BMP info header reading error.\n", BMP_MINE_ERROR_CODE);
     }
-    exit_code = check_bmp_info_header(bmp_file->info_header, bmp_file->header->file_size, bmp_file->header->image_offset);
+    exit_code = check_bmp_info_header(bmp_file->info_header, bmp_file->header->file_size,
+                                      bmp_file->header->image_offset, BMP_MINE_ERROR_CODE);
     if(exit_code == BMP_MINE_ERROR_CODE)
     {
         free(bmp_file->header);
@@ -96,7 +97,8 @@ int mine_invert_bmp(FILE* input_file, FILE* output_file, bmp_file_t* bmp_file)
     }
     write_bmp_fragment(bmp_file->info_header, BMP_INFO_HEADER_SIZE, output_file);
 
-    exit_code = check_colors_count(choose_mine_inversion(input_file, output_file, bmp_file), bmp_file->info_header->image_size);
+    exit_code = check_colors_count(choose_mine_inversion(input_file, output_file, bmp_file),
+                                   bmp_file->info_header->image_size, BMP_MINE_ERROR_CODE);
     if(exit_code == BMP_MINE_ERROR_CODE)
     {
         free(bmp_file->header);

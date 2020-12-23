@@ -124,26 +124,26 @@ bool check_image_offset(word_t image_offset)
     return true;
 }
 
-int check_bmp_header(bmp_header_t *header)
+int check_bmp_header(bmp_header_t *header, int exit_code)
 {
     if(!is_bmp_signature(header->signature))
     {
-        return error("BMP_file reading error: signature fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: signature fault.\n", exit_code);
     }
 
     if(!check_file_size(header->file_size))
     {
-        return error("BMP_file reading error: file size fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: file size fault.\n", exit_code);
     }
 
     if(!is_reserved_null(header->first_reserved_pare, header->second_reserved_pare))
     {
-        return error("BMP_file reading error: reserved bytes fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: reserved bytes fault.\n", exit_code);
     }
 
     if(!check_image_offset(header->image_offset))
     {
-        return error("BMP_file reading error: image offset fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: image offset fault.\n", exit_code);
     }
     return SUCCESSFUL_EXIT_CODE;
 }
@@ -216,50 +216,50 @@ bool check_size(word_t file_size, word_t image_size, word_t image_offset)
     return true;
 }
 
-int check_colors_count(int colors_count, int bmp_image_size)
+int check_colors_count(int colors_count, int bmp_image_size, int exit_code)
 {
     if(colors_count != bmp_image_size)
     {
-        return error("BMP_file reading error: image size doesn't match the reality.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: image size doesn't match the reality.\n", exit_code);
     }
     return SUCCESSFUL_EXIT_CODE;
 }
 
-int check_bmp_info_header(bmp_info_header_t *info_header, word_t file_size, word_t image_offset)
+int check_bmp_info_header(bmp_info_header_t *info_header, word_t file_size, word_t image_offset, int exit_code)
 {
     if(!check_info_header_size(info_header->info_header_size))
     {
-        return error("BMP_file reading error: info header size fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: info header size fault.\n", exit_code);
     }
 
     if(!check_image_width(info_header->image_width))
     {
-        return error("BMP_file reading error: image width fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: image width fault.\n", exit_code);
     }
     if(!check_image_height(info_header->image_height))
     {
-        return error("BMP_file reading error: image height fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: image height fault.\n", exit_code);
     }
 
     if(!check_bmp_type(info_header->bit_count))
     {
-        return error("BMP_file reading error: bmp type fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: bmp type fault.\n", exit_code);
     }
 
     if(!check_image_size(info_header->image_width, info_header->image_height,
                          info_header->image_size, info_header->bit_count))
     {
-        return error("BMP_file reading error: image size fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: image size fault.\n", exit_code);
     }
 
     if(!check_size(file_size, info_header->image_size, image_offset))
     {
-        return error("BMP_file reading error: file size fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: file size fault.\n", exit_code);
     }
 
     if(!check_planes_count(info_header->planes_count))
     {
-        return error("BMP_file reading error: planes count fault.\n", BMP_MINE_ERROR_CODE);
+        return error("BMP_file reading error: planes count fault.\n", exit_code);
     }
     return SUCCESSFUL_EXIT_CODE;
 }
