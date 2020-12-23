@@ -9,6 +9,7 @@
 static const int BMP_HEADER_SIZE = 14, BMP_INFO_HEADER_SIZE = 40, BMP_8_PALETTE_SIZE = 256, PLANES_COUNT = 1;
 static const int BMP_24_BIT_COUNT = 24, BMP_8_BIT_COUNT = 8, BMP_SIGNATURE = 19778, RESERVED_VALUE = 0;
 static const int BMP_24_IMAGE_OFFSET = 54, BLOCK_SIZE = 4, BMP_8_IMAGE_OFFSET = 1078, BYTE_LENGTH = 8;
+static const unsigned int PALETTE_MAX = 4278190080;
 
 typedef unsigned char byte_t;
 typedef unsigned short short_word_t;

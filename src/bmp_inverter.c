@@ -8,6 +8,7 @@ void invert_palette_bmp_8(bmp_file_t *bmp_file)
     for(int i = 0; i < BMP_8_PALETTE_SIZE; i++)
     {
         invert(bmp_file->palette[i]);
+        bmp_file->palette[i] -= PALETTE_MAX;
     }
 }
 
