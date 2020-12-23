@@ -2,17 +2,15 @@
 
 #include "bmp_validate.h"
 
-#define error_print(...) fprintf(stderr, __VA_ARGS__)
-
 int error(const char *error_text, int exit_code)
 {
     error_print("%s\n", error_text);
     return exit_code;
 }
 
-bool check_converter_count_of_parameters(parameters_count_t parameters_count)
+bool check_count_of_parameters(parameters_count_t parameters_count, parameters_count_t parameters_const)
 {
-    if(parameters_count == CONVERTER_COUNT_OF_PARAMS)
+    if(parameters_count == parameters_const)
     {
         return true;
     }
@@ -61,28 +59,28 @@ int is_string_in_array(string_t string, const_string_array_t string_array, array
 
 int check_converter_parameters(parameters_count_t parameters_count, parameters_t parameters)
 {
-    if(!check_converter_count_of_parameters(parameters_count))
+    if(!check_count_of_parameters(parameters_count, CONVERTER_COUNT_OF_PARAMS))
     {
-        return error("Input correct count of parameters.\n", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct count of parameters.", UNSUCCESSFUL_EXIT_CODE);
     }
 
     if(is_string_in_array(parameters[ARG_ALGORITHM_NAME], ALGORITHMS_NAMES, COUNT_OF_ALGORITHMS) == UNSUCCESSFUL_EXIT_CODE)
     {
-        return error("Input correct algorithm name.\n", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct algorithm name.", UNSUCCESSFUL_EXIT_CODE);
     }
 
     if(!is_bmp_file(parameters[ARG_CONVERTER_INPUT_FILE_NAME]))
     {
-        return error("Input correct input file name.\n", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct input file name.", UNSUCCESSFUL_EXIT_CODE);
     }
     if(!is_bmp_file(parameters[ARG_CONVERTER_OUTPUT_FILE_NAME]))
     {
-        return error("Input correct output file name.\n", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct output file name.", UNSUCCESSFUL_EXIT_CODE);
     }
 
     if(!check_existence_input_file(parameters[ARG_CONVERTER_INPUT_FILE_NAME]))
     {
-        return error("Input file doesn't exist.\n", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input file doesn't exist.", UNSUCCESSFUL_EXIT_CODE);
     }
 
     return SUCCESSFUL_EXIT_CODE;
@@ -128,22 +126,22 @@ int check_bmp_header(bmp_header_t *header, int exit_code)
 {
     if(!is_bmp_signature(header->signature))
     {
-        return error("BMP_file reading error: signature fault.\n", exit_code);
+        return error("BMP_file reading error: signature fault.", exit_code);
     }
 
     if(!check_file_size(header->file_size))
     {
-        return error("BMP_file reading error: file size fault.\n", exit_code);
+        return error("BMP_file reading error: file size fault.", exit_code);
     }
 
     if(!is_reserved_null(header->first_reserved_pare, header->second_reserved_pare))
     {
-        return error("BMP_file reading error: reserved bytes fault.\n", exit_code);
+        return error("BMP_file reading error: reserved bytes fault.", exit_code);
     }
 
     if(!check_image_offset(header->image_offset))
     {
-        return error("BMP_file reading error: image offset fault.\n", exit_code);
+        return error("BMP_file reading error: image offset fault.", exit_code);
     }
     return SUCCESSFUL_EXIT_CODE;
 }
@@ -160,15 +158,6 @@ bool check_info_header_size(word_t info_header_size)
 bool check_image_width(word_t width)
 {
     if(width < 0)
-    {
-        return false;
-    }
-    return true;
-}
-
-bool check_image_height(word_t height)
-{
-    if(height < 0)
     {
         return false;
     }
@@ -220,7 +209,7 @@ int check_colors_count(int colors_count, int bmp_image_size, int exit_code)
 {
     if(colors_count != bmp_image_size)
     {
-        return error("BMP_file reading error: image size doesn't match the reality.\n", exit_code);
+        return error("BMP_file reading error: image size doesn't match the reality.", exit_code);
     }
     return SUCCESSFUL_EXIT_CODE;
 }
@@ -229,37 +218,61 @@ int check_bmp_info_header(bmp_info_header_t *info_header, word_t file_size, word
 {
     if(!check_info_header_size(info_header->info_header_size))
     {
-        return error("BMP_file reading error: info header size fault.\n", exit_code);
+        return error("BMP_file reading error: info header size fault.", exit_code);
     }
 
     if(!check_image_width(info_header->image_width))
     {
-        return error("BMP_file reading error: image width fault.\n", exit_code);
-    }
-    if(!check_image_height(info_header->image_height))
-    {
-        return error("BMP_file reading error: image height fault.\n", exit_code);
+        return error("BMP_file reading error: image width fault.", exit_code);
     }
 
     if(!check_bmp_type(info_header->bit_count))
     {
-        return error("BMP_file reading error: bmp type fault.\n", exit_code);
+        return error("BMP_file reading error: bmp type fault.", exit_code);
     }
 
     if(!check_image_size(info_header->image_width, info_header->image_height,
                          info_header->image_size, info_header->bit_count))
     {
-        return error("BMP_file reading error: image size fault.\n", exit_code);
+        return error("BMP_file reading error: image size fault.", exit_code);
     }
 
     if(!check_size(file_size, info_header->image_size, image_offset))
     {
-        return error("BMP_file reading error: file size fault.\n", exit_code);
+        return error("BMP_file reading error: file size fault.", exit_code);
     }
 
     if(!check_planes_count(info_header->planes_count))
     {
-        return error("BMP_file reading error: planes count fault.\n", exit_code);
+        return error("BMP_file reading error: planes count fault.", exit_code);
     }
+    return SUCCESSFUL_EXIT_CODE;
+}
+
+int check_comparer_parameters(parameters_count_t parameters_count, parameters_t parameters)
+{
+    if(!check_count_of_parameters(parameters_count, COMPARER_COUNT_OF_PARAMS))
+    {
+        return error("Input correct count of parameters.", UNSUCCESSFUL_EXIT_CODE);
+    }
+
+    if(!is_bmp_file(parameters[ARG_FIRST_FILE_NAME]))
+    {
+        return error("Input correct first file name.", UNSUCCESSFUL_EXIT_CODE);
+    }
+    if(!is_bmp_file(parameters[ARG_SECOND_FILE_NAME]))
+    {
+        return error("Input correct second file name.", UNSUCCESSFUL_EXIT_CODE);
+    }
+
+    if(!check_existence_input_file(parameters[ARG_FIRST_FILE_NAME]))
+    {
+        return error("First file doesn't exist.", UNSUCCESSFUL_EXIT_CODE);
+    }
+    if(!check_existence_input_file(parameters[ARG_SECOND_FILE_NAME]))
+    {
+        return error("Second file doesn't exist.", UNSUCCESSFUL_EXIT_CODE);
+    }
+
     return SUCCESSFUL_EXIT_CODE;
 }
