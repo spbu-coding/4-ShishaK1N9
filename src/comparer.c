@@ -107,6 +107,29 @@ int main(int argc, char* argv[])
         return UNSUCCESSFUL_EXIT_CODE;
     }
 
+    if(first_bmp.info_header->bit_count == BMP_8_BIT_COUNT)
+    {
+        first_bmp.palette = malloc(BMP_8_PALETTE_SIZE * sizeof(word_t));
+        read_bmp_fragment(first_bmp.palette, BMP_8_PALETTE_SIZE * sizeof(word_t), first_file);
+        second_bmp.palette = malloc(BMP_8_PALETTE_SIZE * sizeof(word_t));
+        read_bmp_fragment(second_bmp.palette, BMP_8_PALETTE_SIZE * sizeof(word_t), second_file);
+        exit_code = palette_compare(first_bmp.palette, second_bmp.palette);
+        if(exit_code == UNSUCCESSFUL_EXIT_CODE)
+        {
+            free(first_bmp.palette);
+            free(second_bmp.palette);
+            free(first_bmp.header);
+            free(first_bmp.info_header);
+            free(second_bmp.header);
+            free(second_bmp.info_header);
+            fclose(first_file);
+            fclose(second_file);
+            return exit_code;
+        }
+        free(first_bmp.palette);
+        free(second_bmp.palette);
+    }
+
     free(first_bmp.header);
     free(first_bmp.info_header);
     free(second_bmp.header);
