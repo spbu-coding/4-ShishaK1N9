@@ -1,7 +1,6 @@
-#include <strings.h>
+#include <string.h>
 
 #include "bmp_validate.h"
-#include "bmp_handler.h"
 
 #define error_print(...) fprintf(stderr, __VA_ARGS__)
 
@@ -20,7 +19,7 @@ bool check_converter_count_of_parameters(parameters_count_t parameters_count)
     return false;
 }
 
-bool is_bmp_file(char* file_name)
+bool is_bmp_file(file_name_t file_name)
 {
     unsigned int index = 0;
     for(unsigned int i = 0; i < strlen(file_name); i++)
@@ -64,45 +63,203 @@ int check_converter_parameters(parameters_count_t parameters_count, parameters_t
 {
     if(!check_converter_count_of_parameters(parameters_count))
     {
-        return error("Input correct count of parameters.", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct count of parameters.\n", UNSUCCESSFUL_EXIT_CODE);
     }
 
     if(is_string_in_array(parameters[ARG_ALGORITHM_NAME], ALGORITHMS_NAMES, COUNT_OF_ALGORITHMS))
     {
-        return error("Input correct algorithm name.", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct algorithm name.\n", UNSUCCESSFUL_EXIT_CODE);
     }
 
     if(!is_bmp_file(parameters[ARG_CONVERTER_INPUT_FILE_NAME]))
     {
-        return error("Input correct input file name", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct input file name.\n", UNSUCCESSFUL_EXIT_CODE);
     }
     if(!is_bmp_file(parameters[ARG_CONVERTER_OUTPUT_FILE_NAME]))
     {
-        return error("Input correct output file name", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input correct output file name.\n", UNSUCCESSFUL_EXIT_CODE);
     }
 
     if(!check_existence_input_file(parameters[ARG_CONVERTER_INPUT_FILE_NAME]))
     {
-        return error("Input file doesn't exist.", UNSUCCESSFUL_EXIT_CODE);
+        return error("Input file doesn't exist.\n", UNSUCCESSFUL_EXIT_CODE);
     }
+
+    return SUCCESSFUL_EXIT_CODE;
 }
 
+bool is_bmp_signature(short_word_t signature)
+{
+    if(signature != BMP_SIGNATURE)
+    {
+        return false;
+    }
+    return true;
+}
 
-//todo проверить первые два байта на сигнартуру BM
-//todo отловить ошибку размера файла(02-05 / 1 строчка)
-//todo отловить ошибку зарезервированных бит(должны быть пустыми, 06-09 / 1 строчка)
-//todo отловить ошибку смещения изображения(54 для 24bit и 1078 для 8bit, 0A-0D / 1 строчка)
-//todo отловить ошибку с длиной заголовка?(стандартная длина 40, 0E-01 / 1-2 строчки)
+bool check_file_size(word_t file_size)
+{
+    if(file_size < 0)
+    {
+        return false;
+    }
+    return true;
+}
 
-//todo отловить ошибку с шириной изображения(02-05 / 2 строчка)
-//todo отловить ошибку с высотой изображения(06-09 / 2 строчка)
-//todo проверить размер изображения с высота * ширина
-//todo отловить ошибку с кол-вом плоскостей(по стандарту 1, 0A-0B / 2 строчка)
-//todo отловить ошибку со стандратом bmp(8 или 24, 0С-0В / 2 строчка)
+bool is_reserved_null(short_word_t first_reserved_pare, short_word_t second_reserved_pare)
+{
+    if(first_reserved_pare != RESERVED_VALUE || second_reserved_pare != RESERVED_VALUE)
+    {
+        return false;
+    }
+    return true;
+}
 
-//todo отловить ошибку размера изображения в размере файла(размер файла минус смещение, 02-05 / 3 строчка)
-//todo какое-то смещение(06-09 / 3 строчка)
-//todo отловить ошибку с числом используемых цветов(максимум 0, 0E-01 / 3-4 строчка)
+bool check_image_offset(word_t image_offset)
+{
+    if(image_offset != BMP_8_IMAGE_OFFSET && image_offset != BMP_24_IMAGE_OFFSET)
+    {
+        return false;
+    }
+    return true;
+}
 
-//todo проверить байты на наличие в палитре?
+int check_bmp_header(bmp_header_t *header)
+{
+    if(!is_bmp_signature(header->signature))
+    {
+        return error("BMP_file reading error: signature fault.\n", BMP_MINE_ERROR_CODE);
+    }
 
+    if(!check_file_size(header->file_size))
+    {
+        return error("BMP_file reading error: file size fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!is_reserved_null(header->first_reserved_pare, header->second_reserved_pare))
+    {
+        return error("BMP_file reading error: reserved bytes fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!check_image_offset(header->image_offset))
+    {
+        return error("BMP_file reading error: image offset fault.\n", BMP_MINE_ERROR_CODE);
+    }
+    return SUCCESSFUL_EXIT_CODE;
+}
+
+bool check_info_header_size(word_t info_header_size)
+{
+    if(info_header_size != BMP_INFO_HEADER_SIZE)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool check_image_width(word_t width)
+{
+    if(width < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool check_image_height(word_t height)
+{
+    if(height < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool check_image_size(word_t width, word_t height, word_t image_size, short_word_t bmp_type)
+{
+    word_t real_width = width * (bmp_type / BYTE_LENGTH);
+    if(real_width % BLOCK_SIZE != 0)
+    {
+        real_width = real_width + BLOCK_SIZE - real_width % BLOCK_SIZE;
+    }
+    if(real_width * height != image_size)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool check_bmp_type(short_word_t bmp_type)
+{
+    if(bmp_type != BMP_8_BIT_COUNT && bmp_type != BMP_24_BIT_COUNT)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool check_planes_count(short_word_t planes_count)
+{
+    if(planes_count != PLANES_COUNT)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool check_size(word_t file_size, word_t image_size, word_t image_offset)
+{
+    if(file_size != image_size + image_offset)
+    {
+        return false;
+    }
+    return true;
+}
+
+int check_colors_count(int colors_count, int bmp_image_size)
+{
+    if(colors_count != bmp_image_size)
+    {
+        return error("BMP_file reading error: image size doesn't match the reality.\n", BMP_MINE_ERROR_CODE);
+    }
+    return SUCCESSFUL_EXIT_CODE;
+}
+
+int check_bmp_info_header(bmp_info_header_t *info_header, word_t file_size, word_t image_offset)
+{
+    if(!check_info_header_size(info_header->info_header_size))
+    {
+        return error("BMP_file reading error: info header size fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!check_image_width(info_header->image_width))
+    {
+        return error("BMP_file reading error: image width fault.\n", BMP_MINE_ERROR_CODE);
+    }
+    if(!check_image_height(info_header->image_height))
+    {
+        return error("BMP_file reading error: image height fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!check_bmp_type(info_header->bit_count))
+    {
+        return error("BMP_file reading error: bmp type fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!check_image_size(info_header->image_width, info_header->image_height,
+                         info_header->image_size, info_header->bit_count))
+    {
+        return error("BMP_file reading error: image size fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!check_size(file_size, info_header->image_size, image_offset))
+    {
+        return error("BMP_file reading error: file size fault.\n", BMP_MINE_ERROR_CODE);
+    }
+
+    if(!check_planes_count(info_header->planes_count))
+    {
+        return error("BMP_file reading error: planes count fault.\n", BMP_MINE_ERROR_CODE);
+    }
+    return SUCCESSFUL_EXIT_CODE;
+}

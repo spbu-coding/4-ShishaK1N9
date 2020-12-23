@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "bmp_handler.h"
+
 #define size_of_array(array) sizeof(array) / sizeof(char*)
 
 static const char *BMP_FILE_FORMAT = ".bmp";
@@ -19,6 +21,14 @@ typedef const char** const_string_array_t;
 typedef char **parameters_t, *string_t, *file_name_t;
 typedef int parameters_count_t;
 
+int error(char*, int);
+
 int check_converter_parameters(parameters_count_t t, parameters_t);
+
+int check_bmp_header(bmp_header_t*);
+
+int check_colors_count(int, int);
+
+int check_bmp_info_header(bmp_info_header_t*, word_t, word_t);
 
 #endif //TESTS_BMP_VALIDATE_H

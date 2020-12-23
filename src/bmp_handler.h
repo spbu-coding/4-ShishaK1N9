@@ -1,18 +1,22 @@
 #ifndef TESTS_BMP_HANDLER_H
 #define TESTS_BMP_HANDLER_H
 
-#include <strings.h>
+#include <string.h>
 
 #define read_bmp_fragment(fragment, fragment_size, file) fread(fragment, fragment_size, 1, file)
 #define write_bmp_fragment(fragment, fragment_size, file) fwrite(fragment, fragment_size, 1, file)
 
-static const int BMP_HEADER_SIZE = 14, BMP_INFO_HEADER_SIZE = 40, BMP_8_PALETTE_SIZE = 256;
-static const int BMP_24_BIT_COUNT = 24, BMP_8_BIT_COUNT = 8;
+static const int BMP_HEADER_SIZE = 14, BMP_INFO_HEADER_SIZE = 40, BMP_8_PALETTE_SIZE = 256, PLANES_COUNT = 1;
+static const int BMP_24_BIT_COUNT = 24, BMP_8_BIT_COUNT = 8, BMP_SIGNATURE = 19778, RESERVED_VALUE = 0;
+static const int BMP_24_IMAGE_OFFSET = BMP_HEADER_SIZE + BMP_INFO_HEADER_SIZE, BLOCK_SIZE = 4;
+static const int BMP_8_IMAGE_OFFSET = BMP_8_PALETTE_SIZE * 4 + BMP_24_IMAGE_OFFSET, BYTE_LENGTH = 8;
 
 typedef unsigned char byte_t;
 typedef unsigned short short_word_t;
 typedef unsigned int word_t;
 
+
+#pragma pack(push, 1)
 typedef struct
 {
     short_word_t signature;
@@ -21,7 +25,9 @@ typedef struct
     short_word_t second_reserved_pare;
     word_t image_offset;
 } bmp_header_t;
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 typedef struct
 {
     word_t info_header_size;
@@ -36,6 +42,7 @@ typedef struct
     word_t colors_used;
     word_t important_colors;
 } bmp_info_header_t;
+#pragma pack(pop)
 
 typedef struct
 {
@@ -47,9 +54,9 @@ typedef struct
 
 typedef struct
 {
-    word_t red;
-    word_t green;
-    word_t blue;
+    byte_t red;
+    byte_t green;
+    byte_t blue;
 } rgb_t;
 
 #endif //TESTS_BMP_HANDLER_H
