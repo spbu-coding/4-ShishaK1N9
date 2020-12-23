@@ -1,6 +1,7 @@
 #include "bmp_handler.h"
 #include "bmp_inverter.h"
-#include "bmp_validate.h"
+#include "qdbmp.h"
+
 
 void invert_palette_bmp_8(bmp_file_t *bmp_file)
 {
@@ -12,7 +13,7 @@ void invert_palette_bmp_8(bmp_file_t *bmp_file)
 
 int copy_bmp_8(FILE* input_file, FILE* output_file)
 {
-    int colors_count = 0, *byte = malloc(sizeof(short_word_t));
+    int colors_count = 0, *byte = malloc(sizeof(word_t));
     while(!feof(input_file) && ((*byte = fgetc(input_file)) != EOF))
     {
         fputc(*byte, output_file);
@@ -57,7 +58,7 @@ int choose_mine_inversion(FILE* input_file, FILE* output_file, bmp_file_t* bmp_f
         case 24:
             return invert_bmp_24(input_file, output_file);
         default:
-            break;
+            return 0;
     }
 }
 
@@ -105,4 +106,53 @@ int mine_invert_bmp(FILE* input_file, FILE* output_file, bmp_file_t* bmp_file)
     free(bmp_file->header);
     free(bmp_file->info_header);
     return exit_code;
+}
+
+
+int qdbmp_Convert(file_name_t filein, file_name_t fileout)
+{
+    UCHAR r, g, b;
+    UINT width, height;
+    UINT x, y;
+    BMP	*bmp = BMP_ReadFile( filein );
+    BMP_CHECK_ERROR(stdout, BMP_THEIR_ERROR_CODE);
+
+    width = BMP_GetWidth(bmp);
+    height = BMP_GetHeight(bmp);
+
+    if(bmp->Palette == NULL && BMP_GetDepth(bmp) == 24)
+    {
+        for(x = 0 ; x < width ; x++)
+        {
+            for(y = 0 ; y < height ; y++)
+            {
+                BMP_GetPixelRGB( bmp, x, y, &r, &g, &b );
+                BMP_SetPixelRGB( bmp, x, y, 255 - r, 255 - g, 255 - b );
+            }
+        }
+    }
+    else if(BMP_GetDepth(bmp) == 8)
+    {
+        for(unsigned i = 0; i < 256 ; i++)
+        {
+            bmp->Palette[i<<2] = bmp->Palette[i<<2] ^ 0xFF;
+            bmp->Palette[(i<<2)+1] = bmp->Palette[(i<<2)+1] ^ 0xFF;
+            bmp->Palette[(i<<2)+2] = bmp->Palette[(i<<2)+2] ^ 0xFF;
+        }
+    }
+    else
+    {
+        BMP_LAST_ERROR_CODE = BMP_FILE_NOT_SUPPORTED;
+        BMP_Free(bmp);
+        return error(BMP_GetErrorDescription(), BMP_THEIR_ERROR_CODE);
+    }
+
+    BMP_WriteFile( bmp, fileout );
+    if(BMP_LAST_ERROR_CODE)
+    {
+        BMP_Free(bmp);
+        return error(BMP_GetErrorDescription(), BMP_THEIR_ERROR_CODE);
+    }
+    BMP_Free(bmp);
+    return SUCCESSFUL_EXIT_CODE;
 }

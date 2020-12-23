@@ -4,7 +4,7 @@
 
 #define error_print(...) fprintf(stderr, __VA_ARGS__)
 
-int error(char *error_text, int exit_code)
+int error(const char *error_text, int exit_code)
 {
     error_print("%s\n", error_text);
     return exit_code;
@@ -66,7 +66,7 @@ int check_converter_parameters(parameters_count_t parameters_count, parameters_t
         return error("Input correct count of parameters.\n", UNSUCCESSFUL_EXIT_CODE);
     }
 
-    if(is_string_in_array(parameters[ARG_ALGORITHM_NAME], ALGORITHMS_NAMES, COUNT_OF_ALGORITHMS))
+    if(is_string_in_array(parameters[ARG_ALGORITHM_NAME], ALGORITHMS_NAMES, COUNT_OF_ALGORITHMS) == UNSUCCESSFUL_EXIT_CODE)
     {
         return error("Input correct algorithm name.\n", UNSUCCESSFUL_EXIT_CODE);
     }

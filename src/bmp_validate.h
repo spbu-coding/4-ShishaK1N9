@@ -21,7 +21,7 @@ typedef const char** const_string_array_t;
 typedef char **parameters_t, *string_t, *file_name_t;
 typedef int parameters_count_t;
 
-int error(char*, int);
+int error(const char*, int);
 
 int check_converter_parameters(parameters_count_t t, parameters_t);
 
